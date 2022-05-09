@@ -1,5 +1,3 @@
-#ReyWu
-
 ## Author: Rey
 ## BU BF591
 ## Final Project
@@ -62,9 +60,9 @@ ui <- fluidPage(
                sidebarPanel(
                  fileInput("file3", paste("Results of a differential expression analysis in CSV format")),
                  p("A volcano plot can be generated with log2 fold-change on the x-axis and p-adjusted on the y-axis."),
-                 radioButtons('x_name', "Choose thw column for the x-axis",
+                 radioButtons('x_name', "Choose the column for the x-axis",
                               choices = c("baseMean", "log2FoldChange", "lfcSE", "stat", "pvalue", "padj")),
-                 radioButtons('y_name', "Choose thw column for the y-axis",
+                 radioButtons('y_name', "Choose the column for the y-axis",
                               choices=c("baseMean", "log2FoldChange", "lfcSE", "stat", "pvalue", "padj")),
                  colourInput('color1', "Base point color", value='#22577A'),
                  colourInput('color2', "Highlight point color", value='#FFCF56'),
@@ -105,7 +103,7 @@ ui <- fluidPage(
                             ),
                    tabPanel("Scatter plot ",
                             sidebarPanel(
-                              sliderInput(inputId="slider6", min=0.01, max=1, label="elect the value of the adjusted p-value: ",
+                              sliderInput(inputId="slider6", min=0.01, max=1, label="Select the value of the adjusted p-value: ",
                                           value=0, step=0.01),
                               submitButton("Plot", width = "100%")
                             ),
@@ -241,9 +239,6 @@ server <- function(input, output, session) {
     passed <- dataf %>%
       filter(non_zero>=slider2)%>%
       filter(variance>=quantile(variance, slider1))
-    # passed <- filter(dataf, rowSums(across(where(is.numeric)))!=0) 
-    # variance=apply(passed, 1, var)
-    # passed <- filter(passed[,1:54], quantile(variance, slider1)<variance)
     
     passed <- as.matrix(passed[,1:54])
     col.pal <- RColorBrewer::brewer.pal(10, 'RdBu')
@@ -262,8 +257,8 @@ server <- function(input, output, session) {
     percent_var <- pca$sdev^2 / sum(pca$sdev^2 )
     pca_plot <- ggplot2::ggplot(plot_data, ggplot2::aes(x=PCx, y=PCy, col=tissueType)) +
       ggplot2::geom_point() +
-      ggplot2::xlab(paste0(glue("PC{pca_x}: ",round(percent_var[1] * 100),"% variance"))) +
-      ggplot2::ylab(paste0(glue("PC{pca_y}: ",round(percent_var[2] * 100),"% variance"))) +
+      ggplot2::xlab(paste0(glue("PC{pca_x}: ",round(percent_var[pca_x] * 100),"% variance"))) +
+      ggplot2::ylab(paste0(glue("PC{pca_y}: ",round(percent_var[pca_y] * 100),"% variance"))) +
       ggplot2::theme(legend.position="top")
     
     return(pca_plot)
@@ -392,6 +387,7 @@ server <- function(input, output, session) {
     enrich_scatter(load_data5(), as.numeric(input$slider6))
   })
 }
+
 
 # Run the application
 shinyApp(ui = ui, server = server)
